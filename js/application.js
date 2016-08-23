@@ -6,9 +6,7 @@ window.onload = function() {
     {image: 'img/tricolaw.png',  prob: 1.},
     {image: 'img/tricolaw2.png', prob: .6},
     {image: 'img/tricolaw3.png', prob: .9},
-    {image: 'img/gataza.png',    prob: 1.},
-    {image: 'img/gataza2.png',   prob: .05}
-    // {image: 'img/gataza3.png',   prob: .5}
+    {image: 'img/gataza.png',    prob: 1.}
   ];
   var finished = [];
   for(var i = 0; i < images.length; i++) {
@@ -32,21 +30,13 @@ function draw(images) {
     return img;
   });
 
-  // project.clear();
-
   var width = view.size.width;
   var height = view.size.height;
 
   var background = new Path.Rectangle({
     point: [0, 0],
     size: [view.size.width, view.size.height],
-    fillColor: {
-      gradient: {
-        stops: ['#383229', '#342B1E']
-      },
-      origin: [0, 0],
-      destination: [0, view.size.height]
-    },
+    fillColor: 'black',
   });
   background.sendToBack();
 
