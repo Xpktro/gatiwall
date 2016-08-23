@@ -3,19 +3,21 @@ window.onload = function() {
   paper.setup('paper');
 
   var images = [
-    'img/tricolaw.png',
-    'img/tricolaw2.png',
-    'img/gataza.png',
-    'img/gataza2.png',
-    'img/gataza3.png'
+    {image: 'img/tricolaw.png',  prob: 1.},
+    {image: 'img/tricolaw2.png', prob: .6},
+    {image: 'img/tricolaw3.png', prob: .9},
+    {image: 'img/gataza.png',    prob: 1.},
+    {image: 'img/gataza2.png',   prob: .05}
+    // {image: 'img/gataza3.png',   prob: .5}
   ];
   var finished = [];
   for(var i = 0; i < images.length; i++) {
     var imageToDraw = new Image();
     imageToDraw.crossOrigin = 'Anonymous';
-    imageToDraw.src = images[i];
+    imageToDraw.src = images[i].image;
+    imageToDraw.prob = images[i].prob;
     imageToDraw.onload = function() {
-      finished.push(this);
+      finished.push({image: this, prob: this.prob});
       if(finished.length === images.length) {
         draw(finished);
       }
@@ -25,8 +27,8 @@ window.onload = function() {
 
 function draw(images) {
   images = images.map(function(img, i) {
-    img = imageWithOutline(img, 'white', 15);
-    img = imageWithOutline(img, 'black', 3);
+    img.image = imageWithOutline(img.image, 'white', 15);
+    img.image = imageWithOutline(img.image, 'black', 3);
     return img;
   });
 
@@ -38,8 +40,13 @@ function draw(images) {
   var background = new Path.Rectangle({
     point: [0, 0],
     size: [view.size.width, view.size.height],
-    strokeColor: '#24242C',
-    fillColor: '#24242C',
+    fillColor: {
+      gradient: {
+        stops: ['#383229', '#342B1E']
+      },
+      origin: [0, 0],
+      destination: [0, view.size.height]
+    },
   });
   background.sendToBack();
 
@@ -47,7 +54,7 @@ function draw(images) {
 
   for (var x = 0; x <= width + separation; x += separation) {
     for (var y = 0; y <= height + separation; y += separation) {
-      var raster = new Raster(images[Math.floor(Math.random()*images.length)]);
+      var raster = new Raster(randomWithProb(images).image);
       raster.position = new Point(x + random(0, 30) * random(-1, 1), y + random(0, 30) * random(-1, 1));
       raster.scale(random(0.1, 0.22));
       raster.rotate(random(0, 360));
@@ -107,4 +114,14 @@ function imageWithOutline2(img, color, thickness) {
 
 function random(min, max) {
   return Math.random()*(max-min)+min;
+}
+
+function randomWithProb(elements) {
+  // Given an array of objects with a 'prob' float will return a random element
+  // for which it's prob is greater or equal than a random number (0.00 - 1.00 based).
+  var limit = Math.random();
+  var elements_limited = elements.filter(function(element, index) {
+    return element.prob >= limit;
+  });
+  return elements_limited[Math.floor(Math.random() * elements_limited.length)];
 }
