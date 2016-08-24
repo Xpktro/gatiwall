@@ -1,6 +1,14 @@
 paper.install(window);
+
 window.onload = function() {
   paper.setup('paper');
+  window.animating = false;
+
+  window.text = new PointText();
+  window.text.fillColor = 'black';
+  window.text.content = 'Loading...';
+  window.text.fontSize = '3em';
+  window.text.position = view.center;
 
   var images = [
     {image: 'img/tricolaw.png',  prob: 1.},
@@ -17,19 +25,44 @@ window.onload = function() {
     imageToDraw.onload = function() {
       finished.push({image: this, prob: this.prob});
       if(finished.length === images.length) {
-        draw(finished);
+        finished = finished.map(function(img, i) {
+          img.image = imageWithOutline(img.image, 'white', 15);
+          img.image = imageWithOutline(img.image, 'black', 3);
+          return img;
+        });
+        window.images = finished;
+        window.text.remove();
+        draw(window.images);
       }
+    }
+  }
+
+  view.onFrame = function(event) {
+    if(window.animating) {
+      for (var i = 1; i < project.activeLayer.children.length; i++) {
+    		var item = project.activeLayer.children[i];
+    		item.position.x += item.bounds.width / 20;
+
+        item.rotate(1);
+
+        if(item.bounds.height > 200) {
+          item.scaleFactor = 0.99;
+        } else if(item.bounds.height < 100) {
+          item.scaleFactor = 1.01;
+        }
+
+        item.scale(item.scaleFactor);
+
+    		if (item.bounds.left > view.size.width) {
+    			item.position.x = -item.bounds.width;
+    		}
+    	}
     }
   }
 }
 
 function draw(images) {
-  images = images.map(function(img, i) {
-    img.image = imageWithOutline(img.image, 'white', 15);
-    img.image = imageWithOutline(img.image, 'black', 3);
-    return img;
-  });
-
+  project.clear();
   var width = view.size.width;
   var height = view.size.height;
 
@@ -114,4 +147,9 @@ function randomWithProb(elements) {
     return element.prob >= limit;
   });
   return elements_limited[Math.floor(Math.random() * elements_limited.length)];
+}
+
+function toggleAnimation() {
+  window.animating = !window.animating;
+  draw(window.images);
 }
