@@ -59,6 +59,10 @@ window.onload = function() {
     	}
     }
   }
+
+  view.onResize = function(event) {
+    draw(window.images);
+  }
 }
 
 function draw(images) {
@@ -66,12 +70,12 @@ function draw(images) {
   var width = view.size.width;
   var height = view.size.height;
 
-  var background = new Path.Rectangle({
+  window.background = new Path.Rectangle({
     point: [0, 0],
     size: [view.size.width, view.size.height],
     fillColor: 'black',
   });
-  background.sendToBack();
+  window.background.sendToBack();
 
   var separation = 100;
 
@@ -152,4 +156,12 @@ function randomWithProb(elements) {
 function toggleAnimation() {
   window.animating = !window.animating;
   draw(window.images);
+}
+
+function saveImage() {
+  var canvas = document.getElementsByTagName('canvas')[0];
+  var image = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+  var a = document.getElementsByTagName('a')[0];
+  a.download = 'image.png';
+  a.href = image;
 }
